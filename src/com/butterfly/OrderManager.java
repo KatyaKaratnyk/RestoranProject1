@@ -5,10 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class OrderManager {
+public class OrderManager implements DBManager<Integer, Order> {
     private DBWorker worker;
 
-    public void addOrder(Order order) {
+    public void add(Order order) {
         worker = new DBWorker();
         PreparedStatement stmt = null;
         try {
@@ -42,7 +42,7 @@ public class OrderManager {
         }
     }
 
-    public Order takeOrder(int idOrder) {
+    public Order get(Integer idOrder) {
         Order order = new Order();
         order.setIdOrder(idOrder);
         worker = new DBWorker();
@@ -81,7 +81,7 @@ public class OrderManager {
         return order;
     }
 
-    public boolean checkOrder(int idOrder) {
+    public boolean check(Integer idOrder) {
         boolean b= false;
         worker = new DBWorker();
         PreparedStatement stmt = null;
@@ -136,7 +136,7 @@ public class OrderManager {
         return b;
     }
 
-    public void payOrder(int idOrder) {
+    public void payOrder(Integer idOrder) {
         worker = new DBWorker();
         PreparedStatement stmt = null;
         try {
@@ -156,7 +156,7 @@ public class OrderManager {
     }
 
     public void printOrder(int idOrder) {
-        Order order = this.takeOrder(idOrder);
+        Order order = this.get(idOrder);
         System.out.println("Number`s your order is: "+idOrder+". \nDate of create is: "+order.getDataOrder());
         for(Item e: order.getItems()) {
             int p = 30 - (e.getNameDish().length() + ("" + e.getQuantity()).length());
@@ -171,16 +171,27 @@ public class OrderManager {
         System.out.println("Total price: "+order.getPriceOrder());
     }
 
-    public void deleteDish(int idOrder) {
+    public void delete(Integer idOrder) {
         worker = new DBWorker();
         PreparedStatement stmt = null;
         try {
-            stmt = worker.getConn().prepareStatement("delete from orders where orders.orderId = ?");
-            stmt.setInt(1, idOrder);
-            stmt.executeUpdate();
-            stmt = worker.getConn().prepareStatement("delete from orderitem where orders.orderId = ?");
-            stmt.setInt(1, idOrder);
-            stmt.executeUpdate();
+            try {
+                worker.getConn().setAutoCommit(false);
+                stmt = worker.getConn().prepareStatement("delete from orderitems where orderitems.orderId = ?");
+                stmt.setInt(1, idOrder);
+                stmt.executeUpdate();
+                stmt = worker.getConn().prepareStatement("delete from orders where orders.orderId = ?");
+                stmt.setInt(1, idOrder);
+                stmt.executeUpdate();
+                worker.getConn().commit();
+            } catch (Exception e) {
+                System.out.println("Error. Transaction rollback"+e.getMessage());
+                try {
+                    worker.getConn().rollback();
+                } catch (SQLException ec) {
+                    System.out.println("Cannot rollback");
+                }
+            }
             worker.closeConn();
             stmt.close();
         } catch (SQLException e) {

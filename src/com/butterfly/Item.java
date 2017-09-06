@@ -19,8 +19,5 @@ public class Item extends Dish {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
 
 }

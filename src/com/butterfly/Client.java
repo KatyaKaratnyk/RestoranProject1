@@ -9,9 +9,7 @@ public class Client {
         ++id;
         this.idClient = id;
         this.order = order;
-
     }
-
     public int getIdClient() {
         return idClient;
     }

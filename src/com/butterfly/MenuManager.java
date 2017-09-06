@@ -5,23 +5,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Scanner;
 
-public class MenuManager {
+public class MenuManager implements DBManager<String, Dish>{
     private DBWorker worker;
-    private ArrayList<Dish> menu;
 
-    public MenuManager() {
-    menu = new ArrayList<>();
-}
-    public ArrayList<Dish> getMenu() {
-        return menu;
-    }
-
-    public  void createMenu() {
+    public  ArrayList<Dish> getMenu() {
         worker = new DBWorker();
         Statement stmt = null;
+        ArrayList<Dish> menu = new ArrayList<>();
         try {
             String query = "Select dishId, name, price from menu";
             stmt = worker.getConn().createStatement();
@@ -41,9 +32,9 @@ public class MenuManager {
             } catch (SQLException e) {
             }
         }
+        return menu;
     }
     public void printMenu() {
-        this.createMenu();
         for (Dish e : this.getMenu()) {
             int p = 30 - (e.getNameDish().length() + ("" + e.getPriceDish()).length());
             String s = "";
@@ -55,34 +46,18 @@ public class MenuManager {
             System.out.println(e.getPriceDish());
         }
     }
-    public boolean checkDish(String s) {
+    public boolean check(String s) {
         boolean b= false;
-        worker = new DBWorker();
-        PreparedStatement stmt = null;
-        String name=null;
-        try {
-            stmt = worker.getConn().prepareStatement("Select name from menu where menu.name = ?");
-            stmt.setString(1, s);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                name = rs.getString("name");
-            }
-            worker.closeConn();
-            stmt.close();
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null) stmt.close();
-            } catch (SQLException e) {
+        for (Dish e: this.getMenu()) {
+            if(e.getNameDish().equalsIgnoreCase(s)) {
+                b = true;
+                break;
             }
         }
-        if(name!= null) b =true;
         return b;
     }
 
-    public Dish findDish(String name) {
+    public Dish get(String name) {
         Dish k = null;
         for (Dish e : this.getMenu()) {
             if (name.equalsIgnoreCase(e.getNameDish())) {
@@ -92,41 +67,46 @@ public class MenuManager {
         return k;
     }
     public void addDish(String name, double price) {
-        worker = new DBWorker();
-        PreparedStatement stmt = null;
-        try {
-            stmt = worker.getConn().prepareStatement("INSERT INTO menu(name, price) VALUES(?, ?)");
-            stmt.setNString(1, name);
-            stmt.setDouble(2, price);
-            stmt.executeUpdate();
-            worker.closeConn();
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
+        if(!this.check(name)) {
+            worker = new DBWorker();
+            PreparedStatement stmt = null;
             try {
-                if (stmt != null) stmt.close();
+                stmt = worker.getConn().prepareStatement("INSERT INTO menu(name, price) VALUES(?, ?)");
+                stmt.setNString(1, name);
+                stmt.setDouble(2, price);
+                stmt.executeUpdate();
+                worker.closeConn();
+                stmt.close();
             } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (stmt != null) stmt.close();
+                } catch (SQLException e) {
+                }
             }
         }
-
+        else System.out.println("Such dish has existed already");
     }
-    public void deleteDish(String name) {
-        worker = new DBWorker();
-        PreparedStatement stmt = null;
-        try {
-            stmt = worker.getConn().prepareStatement("delete from menu where menu.name = ?");
-            stmt.setNString(1, name);
-            stmt.executeUpdate();
-            worker.closeConn();
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
+    public void delete(String name) {
+        if(this.check(name)) {
+            worker = new DBWorker();
+            PreparedStatement stmt = null;
             try {
-                if (stmt != null) stmt.close();
+                stmt = worker.getConn().prepareStatement("delete from menu where menu.name = ?");
+                stmt.setNString(1, name);
+                stmt.executeUpdate();
+                worker.closeConn();
+                stmt.close();
             } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (stmt != null) stmt.close();
+                } catch (SQLException e) {
+                }
             }
         }
+        else System.out.println("Such dish doesn`t exist");
     }
 }
