@@ -1,0 +1,5 @@
+select * from menurestoran;
+#update menurestoran set name='Caesar salad', price='94.3' where id=5;
+select * from menurestoran;
+select * from menurestoran;
+select * from orders;
