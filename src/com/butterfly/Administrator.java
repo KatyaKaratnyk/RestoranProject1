@@ -2,12 +2,14 @@ package com.butterfly;
 
 
 public class Administrator{
+
     private MenuManager menu;
     private OrderManager orderManager;
 
+
     public Administrator() {
-        menu = new MenuManager();
-        orderManager = new OrderManager();
+        menu = new MenuManager("restaurant");
+        orderManager = new OrderManager("restaurant");
     }
     //Removes a dish from the database by the name of the dish
     private void deleteDish(String name) {

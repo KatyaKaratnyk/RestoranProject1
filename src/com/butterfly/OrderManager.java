@@ -7,9 +7,15 @@ import java.util.Date;
 
 public class OrderManager implements DBManager<Integer, Order> {
     private DBWorker worker;
+    private DBWorkerFactory dbWorkerFactory = new DBWorkerFactory();
+    private String DBName;
+
+    public OrderManager(String DBName) {
+        this.DBName = DBName;
+    }
 
     public void add(Order order) {
-        worker = new DBWorker();
+        worker = dbWorkerFactory.createDWorker(DBName);
         PreparedStatement stmt = null;
         try {
 
@@ -45,7 +51,7 @@ public class OrderManager implements DBManager<Integer, Order> {
     public Order get(Integer idOrder) {
         Order order = new Order();
         order.setIdOrder(idOrder);
-        worker = new DBWorker();
+        worker = dbWorkerFactory.createDWorker(DBName);
         PreparedStatement stmt = null;
         try {
             stmt = worker.getConn().prepareStatement("Select sum(orderitems.quantity*orderitems.price) as m from orderitems where orderitems.orderId = ?");
@@ -83,7 +89,7 @@ public class OrderManager implements DBManager<Integer, Order> {
 
     public boolean check(Integer idOrder) {
         boolean b= false;
-        worker = new DBWorker();
+        worker = dbWorkerFactory.createDWorker(DBName);
         PreparedStatement stmt = null;
         Date date = new Date();
         try {
@@ -110,7 +116,7 @@ public class OrderManager implements DBManager<Integer, Order> {
 
     public boolean isPaid(int idOrder) {
         boolean b= false;
-        worker = new DBWorker();
+        worker = dbWorkerFactory.createDWorker(DBName);
         PreparedStatement stmt = null;
         int k =0;
         try {
@@ -137,7 +143,7 @@ public class OrderManager implements DBManager<Integer, Order> {
     }
 
     public void payOrder(Integer idOrder) {
-        worker = new DBWorker();
+        worker = dbWorkerFactory.createDWorker(DBName);
         PreparedStatement stmt = null;
         try {
             stmt = worker.getConn().prepareStatement("update orders set isPaid=1 where orders.orderId = ?");
@@ -157,7 +163,7 @@ public class OrderManager implements DBManager<Integer, Order> {
 
     public void printOrder(int idOrder) {
         Order order = this.get(idOrder);
-        System.out.println("Number`s your order is: "+idOrder+". \nDate of create is: "+order.getDataOrder());
+        System.out.println("Order number is: "+idOrder+". \nDate created is: "+order.getDataOrder());
         for(Item e: order.getItems()) {
             int p = 30 - (e.getNameDish().length() + ("" + e.getQuantity()).length());
             String s = "";
@@ -172,7 +178,7 @@ public class OrderManager implements DBManager<Integer, Order> {
     }
 
     public void delete(Integer idOrder) {
-        worker = new DBWorker();
+        worker = dbWorkerFactory.createDWorker(DBName);
         PreparedStatement stmt = null;
         try {
             try {

@@ -4,16 +4,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DBWorker {
-    private static final String URL = "jdbc:mysql://localhost:3306/restoran";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "657493";
+public abstract class DBWorker {
     private Connection conn = null;
 
-    public DBWorker() {
+    public void createConn(String s, String m, String t) {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            conn = DriverManager.getConnection(s, m, t);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -24,6 +21,7 @@ public class DBWorker {
     public Connection getConn() {
         return conn;
     }
+
     public void closeConn() {
         try {
             this.getConn().close();

@@ -6,13 +6,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class MenuManager implements DBManager<String, Dish>{
+public class MenuManager implements DBManager<String, Dish> {
     private DBWorker worker;
+    private DBWorkerFactory dbWorkerFactory = new DBWorkerFactory();
+    private String DBName;
+
+    public MenuManager(String DBName) {
+        this.DBName = DBName;
+    }
 
     public  ArrayList<Dish> getMenu() {
-        worker = new DBWorker();
         Statement stmt = null;
         ArrayList<Dish> menu = new ArrayList<>();
+        worker = dbWorkerFactory.createDWorker(DBName);
         try {
             String query = "Select dishId, name, price from menu";
             stmt = worker.getConn().createStatement();
@@ -68,8 +74,8 @@ public class MenuManager implements DBManager<String, Dish>{
     }
     public void addDish(String name, double price) {
         if(!this.check(name)) {
-            worker = new DBWorker();
             PreparedStatement stmt = null;
+            worker = dbWorkerFactory.createDWorker(DBName);
             try {
                 stmt = worker.getConn().prepareStatement("INSERT INTO menu(name, price) VALUES(?, ?)");
                 stmt.setNString(1, name);
@@ -90,8 +96,8 @@ public class MenuManager implements DBManager<String, Dish>{
     }
     public void delete(String name) {
         if(this.check(name)) {
-            worker = new DBWorker();
             PreparedStatement stmt = null;
+            worker = dbWorkerFactory.createDWorker(DBName);
             try {
                 stmt = worker.getConn().prepareStatement("delete from menu where menu.name = ?");
                 stmt.setNString(1, name);

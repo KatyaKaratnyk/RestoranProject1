@@ -29,7 +29,7 @@ public class Waiter extends Administrator {
                 Scanner sv = new Scanner(System.in);
                 String s = sv.nextLine();
                 while (!s.matches("^[1-9]\\d*$")) {
-                    System.out.println("You enter not correct number. Try again");
+                    System.out.println("You entered not correct number. Try again");
                      s = sv.nextLine();
                 }
                 Item item = new Item(d.getIdDish(), d.getNameDish(), d.getPriceDish(), Integer.parseInt(s));
@@ -37,7 +37,7 @@ public class Waiter extends Administrator {
                 System.out.println("Do you want something else?");
                 b=sc.nextLine();
             } else {
-                System.out.println("Sorry, but we haven`t such dish. Maybe something other?");
+                System.out.println("Sorry, but we don`t have such dish. Maybe something other?");
                 b= sc.nextLine();
             }
         } while (!b.equalsIgnoreCase("no"));
@@ -47,8 +47,8 @@ public class Waiter extends Administrator {
         }
         super.addOrder(order);
         client = new Client(super.getOrder(order.getIdOrder()));
-        System.out.println("Your order is submitted. Number your order is "+order.getIdOrder());
-        System.out.println("There are your dishes. Enjoy!!!");
+        System.out.println("Your order is submitted. Order number is: "+order.getIdOrder());
+        System.out.println("Here are your dishes. Enjoy!!!");
     }
 
     public void printOrder() {
@@ -56,12 +56,12 @@ public class Waiter extends Administrator {
         Scanner sc = new Scanner(System.in);
         String b = sc.nextLine();
         while (!b.equalsIgnoreCase("yes")) {
-            System.out.println("Ok, I came back later.");
+            System.out.println("Ok, I will come back later.");
             System.out.println("Ten minutes left...");
             System.out.println("Maybe now?");
             b = sc.nextLine();
         }
-        System.out.println("Ok. There is your order:");
+        System.out.println("Ok. Here is your order:");
         super.printOrder(client.getOrder().getIdOrder());
     }
     public void getPayment() {
@@ -69,7 +69,7 @@ public class Waiter extends Administrator {
         System.out.println("Enter money:");
         Scanner sc = new Scanner(System.in);
         while (!sc.hasNextDouble()) {
-            System.out.println("You enter not money");
+            System.out.println("Incorrect input. Try again...");
             sc.next();
         }
         double v = sc.nextDouble();
@@ -80,7 +80,7 @@ public class Waiter extends Administrator {
         if(v>d){
             double s = v-d;
             super.getPayment(client.getOrder().getIdOrder());
-            System.out.printf("Ok. Your order is paid. Here is your rest %.3f. Good-bye!!", s);
+            System.out.printf("Ok. Your order is paid. Here is your rest %.2f. Good-bye!!", s);
         }
         if(v<d) {
             System.out.println("It's not enough. We do not close your order. Wash the dishes, then we'll see.");
